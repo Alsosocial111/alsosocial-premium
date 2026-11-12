@@ -3,7 +3,7 @@
 A responsive agency website with Home, What We Do and Contact pages.
 
 ## Live website
-https://alsosocial-premium.vercel.app/
+https://alsosocial-premium-github.vercel.app/
 
 ## Files
 - `index.html` contains the main website, styles and browser JavaScript.
@@ -16,7 +16,7 @@ https://alsosocial-premium.vercel.app/
 Edit index.html. Refresh the two subpage copies from the same source, retaining `<base href="/">` immediately after `<head>` in each subpage. Keep images in assets/.
 
 ## Vercel
-Use Framework Preset Other, repository root as Root Directory, no build or install command, and `.` as Output Directory. Use Node.js 24.x. Changes on main should deploy to production after Git integration is connected.
+Use Framework Preset Other, repository root as Root Directory, no build or install command, and `.` as Output Directory. Use Node.js 24.x. The `alsosocial-premium-github` Vercel project is connected to this repository. Changes pushed to main automatically deploy to production.
 
 ## Contact email setup
 The form needs these Production environment variables in Vercel:
