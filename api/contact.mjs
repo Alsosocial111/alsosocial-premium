@@ -1,4 +1,4 @@
-const allowedServices = new Set(['Website Design','Landing Pages','Booking Forms','Conversion Optimization','Google Ads','Meta Ads','Lead Generation','Campaign Optimization','AI Automations','AI Chatbots','AI Voice Assistants','Workflow Automation','Email & SMS Follow ups','A little of everything']);
+const allowedServices = new Set(['Website Design','Landing Pages','Booking Forms','Conversion Optimization','Google Ads','Meta Ads','Lead Generation','Campaign Optimization','Social Media Management','AI Automations','AI Chatbots','AI Voice Assistants','Workflow Automation','Email & SMS Follow ups','A little of everything']);
 export default async function handler(req, res) {
   res.setHeader('Cache-Control','no-store');
   if(req.method !== 'POST') {res.setHeader('Allow','POST');return res.status(405).json({error:'Method not allowed.'});}
