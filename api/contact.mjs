@@ -16,11 +16,11 @@ export default async function handler(req, res) {
   const name=field('name',100),email=field('email',254),business=field('business',200),service=field('service',100),message=field('message',5000),requestId=field('requestId',100);
   if(!name||name.length>100||/[\r\n]/.test(name)||email.length>254||!/^\S+@[^\s@]+\.[^\s@]+$/.test(email)||/[\r\n]/.test(email)||business.length>200||!allowedServices.has(service)||message.length<10||message.length>5000||body.consent!=='on'||!/^[0-9a-f-]{36}$/i.test(requestId))return fail(400,'Please check the required fields and try again.');
   const {RESEND_API_KEY,CONTACT_TO,CONTACT_FROM}=process.env;
-  if(!RESEND_API_KEY||!CONTACT_TO||!CONTACT_FROM)return fail(503,'The enquiry form is currently unavailable. Please email varun@wealsosocial.com.');
+  if(!RESEND_API_KEY||!CONTACT_TO||!CONTACT_FROM)return fail(503,'The enquiry form is currently unavailable. Please email hello@wealsosocial.com.');
   try{
     const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+RESEND_API_KEY,'Content-Type':'application/json','Idempotency-Key':'alsosocial-enquiry/'+requestId},body:JSON.stringify({from:CONTACT_FROM,to:[CONTACT_TO],reply_to:email,subject:'AlsoSocial enquiry — '+service,text:`Name: ${name}\nEmail: ${email}\nBusiness: ${business||'Not supplied'}\nService: ${service}\n\n${message}\n\nConsent: permission to respond to this enquiry.`}),signal:AbortSignal.timeout(12000)});
-    if(!response.ok)return fail(response.status===429?429:502,'Your enquiry could not be sent. Please try again shortly or email varun@wealsosocial.com.');
+    if(!response.ok)return fail(response.status===429?429:502,'Your enquiry could not be sent. Please try again shortly or email hello@wealsosocial.com.');
     const data=await response.json();if(!data.id)return fail(502,'Delivery could not be confirmed. Please try again.');
     return res.status(200).json({success:true});
-  }catch{return fail(502,'Delivery could not be confirmed. Please try again or email varun@wealsosocial.com.');}
+  }catch{return fail(502,'Delivery could not be confirmed. Please try again or email hello@wealsosocial.com.');}
 }
