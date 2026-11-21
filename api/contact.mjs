@@ -21,6 +21,27 @@ export default async function handler(req, res) {
     const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+RESEND_API_KEY,'Content-Type':'application/json','Idempotency-Key':'alsosocial-enquiry/'+requestId},body:JSON.stringify({from:CONTACT_FROM,to:[CONTACT_TO],reply_to:email,subject:'AlsoSocial enquiry — '+service,text:`Name: ${name}\nEmail: ${email}\nBusiness: ${business||'Not supplied'}\nService: ${service}\n\n${message}\n\nConsent: permission to respond to this enquiry.`}),signal:AbortSignal.timeout(12000)});
     if(!response.ok)return fail(response.status===429?429:502,'Your enquiry could not be sent. Please try again shortly or email hello@wealsosocial.com.');
     const data=await response.json();if(!data.id)return fail(502,'Delivery could not be confirmed. Please try again.');
+    // Optional Google Sheets sync. A Sheets outage must not discard a successfully emailed lead.
+    const sheetsUrl=process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+    const sheetsSecret=process.env.GOOGLE_SHEETS_WEBHOOK_SECRET;
+    if(sheetsUrl&&sheetsSecret){
+      try{
+        const target=new URL(sheetsUrl);
+        if(target.protocol!=='https:'||target.hostname!=='script.google.com')throw new Error('Invalid Sheets webhook destination');
+        const sheetsResponse=await fetch(target.toString(),{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({secret:sheetsSecret,requestId,name,email,business,service,message}),
+          signal:AbortSignal.timeout(10000)
+        });
+        if(!sheetsResponse.ok)throw new Error('Sheets webhook HTTP error');
+        const result=await sheetsResponse.json();
+        if(result.ok!==true)throw new Error('Sheets webhook rejected submission');
+      }catch(error){
+        // Never log private form values or the webhook secret.
+        console.error('Google Sheets sync failed:',error.message);
+      }
+    }
     return res.status(200).json({success:true});
   }catch{return fail(502,'Delivery could not be confirmed. Please try again or email hello@wealsosocial.com.');}
 }
