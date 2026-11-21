@@ -36,7 +36,12 @@ export default async function handler(req, res) {
         });
         if(!sheetsResponse.ok)throw new Error('Sheets webhook HTTP error');
         const result=await sheetsResponse.json();
-        if(result.ok!==true)throw new Error('Sheets webhook rejected submission');
+        if(result.ok!==true){
+          const knownReasons=new Set(['Unauthorized','Invalid submission ID','Invalid fields','Busy, retry','Missing sheet tab','Failed to save enquiry']);
+          const reason=typeof result.error==='string'&&knownReasons.has(result.error)?result.error:'Unexpected response';
+          console.error('Google Sheets webhook rejected:',reason);
+          throw new Error('Sheets webhook rejected submission');
+        }
       }catch(error){
         // Never log private form values or the webhook secret.
         console.error('Google Sheets sync failed:',error.message);
